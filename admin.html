@@ -1,0 +1,217 @@
+<!DOCTYPE HTML>
+<html lang="en">
+	<head>
+		<title> main admin view </title>
+		<meta charset="UTF-8">
+		<link rel="stylesheet" type="text/css" href="messageStyle.css">
+		<script>
+			"use strict";
+			//var serverip = sessionStorage.getItem('sessionIp');
+			var portNum = sessionStorage.getItem('sessionPort');
+			var ngrok = sessionStorage.getItem('ngrok');
+
+			var socket;
+			var name = 'Admin';
+
+			var $ = function(selector)
+			{
+				return document.getElementById(selector);
+			}
+
+			var sendMessage = function()
+			{
+				var sendTo = document.getElementById("sendTo");
+
+				if(sendTo.options[sendTo.selectedIndex].value == "all")
+				{
+//send group message, starts with 'g'
+					socket.send('g' + name + ': ' + $("toSend").value);
+				}
+				else
+				{
+//send private message, starts with 'p'
+					socket.send('p' + sendTo.options[sendTo.selectedIndex].value + ':' + name + ': ' + $("toSend").value);
+					sendTo.selectedIndex = 0;
+				}
+
+				$("toSend").value = "";
+			}
+
+			var nameInfo = function()
+			{
+				alert('This is your unique user id.\n' +
+					'Any messages you send will be displayed with this label.\n' +
+					'As the creator of the session, your name is "Admin"');
+			}
+
+			var groupInfo = function()
+			{
+				alert('This is the group messaging area for this session.\n' +
+					'Messages send to "all" will be displayed here.');
+			}
+
+			var privateInfo = function()
+			{
+				alert('This is the private messaging area for this session.\n' +
+					'Messages sent to you will be displayed here.');
+			}
+
+			var sendInfo = function()
+			{
+				alert('Messages sent to "All" will display in the group messages section.\n' +
+					'Messages sent to an individual will be\n' +
+					'displayed in their private messaging section.');
+			}
+
+			var sessionInfo = function()
+			{
+				alert('This is the unique id for this session.\n' +
+					'Others may use this number to join this session.');
+			}
+
+
+			window.onload = function()
+			{
+				$("session").innerHTML = "Session # " + sessionStorage.getItem('sessionNum');
+				$("sendButton").onclick = sendMessage;
+
+				$("q1").onclick = nameInfo;
+				$("q2").onclick = groupInfo;
+				$("q3").onclick = privateInfo;
+				$("q4").onclick = sendInfo;
+				$("q5").onclick = sessionInfo;
+
+				if(ngrok == null)
+				{
+					alert("unauthorized");
+				}
+
+				if ("WebSocket" in window)
+				{
+					//socket = new WebSocket('ws://' + serverip + ':' + portNum);
+					socket = new WebSocket(ngrok);
+
+					console.log('Connected!');
+
+					socket.onopen = function(event)
+					{
+						console.log('Sending ' + 'j' + name + ',' + sessionStorage.getItem('sessionNum'));
+						socket.send('j' + name + ',' + sessionStorage.getItem('sessionNum'));
+	
+					};
+
+					socket.onmessage = function(event)
+					{
+						console.log('Received: ' + event.data);
+
+						if(event.data == 1)
+						{
+							console.log('Confirmed');
+						}
+//messages that start with 'u' are a list of users
+//updates the list of users
+						else if(event.data.charAt(0) == 'u')
+						{
+							var userList = event.data.substring(1).split(":");
+
+							var selectList = '<option value="all">All</option>';
+
+							for(var i = 0; i < userList.length; i++)
+							{
+								if(userList[i] != "" && userList[i] != name)
+								{
+									selectList += '<option value="' + userList[i] + '">' + userList[i] + '</option>';
+								}
+							}
+
+							$("sendTo").innerHTML = selectList;
+						}
+//messages that start with 'g' are messages to the group
+						else if(event.data.charAt(0) == 'g')
+						{
+							var messageHistory = $("groupChat").value;
+
+							messageHistory += "\n" + event.data.substring(1);
+
+
+							$("groupChat").value = messageHistory;
+						}
+//messages that start with 'p' are private messsages
+						else if(event.data.charAt(0) == 'p')
+						{
+							var message = event.data.substring(1);
+
+							var messageHistory = $("privateChat").value;
+
+							messageHistory += "\n" + message.substring(message.indexOf(":") + 1);	
+
+							$("privateChat").value = messageHistory;
+						}
+					};
+	
+					socket.onclose = function(event)
+					{
+						console.log('Socket has closed');
+					};
+				}
+				else
+				{
+					alert("This browser does not support web sockets!");
+				}
+			};
+
+		</script>
+
+
+	</head>
+
+	<body class="mainArea">
+		<div class="lineHead">
+			<div id="headPart1">
+				My Name: <b> Admin </b> <button id="q1" class="question">?</button>
+			</div>
+
+			<div id="headPart2">
+				<div id="session"> Session #  </div>
+				<button id="q5" class="question">?</button>
+			</div>
+			
+	
+		</div>
+
+		<br/>
+		<br/>
+
+		<div class="publicForm">
+			Group Messages: <button id="q2" class="question">?</button> <br/>
+			<textarea id="groupChat" class="leftArea" cols="70" rows="20" disabled> </textarea>
+		</div>
+
+
+		<div class="privateForm">
+			My Messages: <button id="q3" class="question">?</button> <br/>
+			<textarea id="privateChat" cols="30" rows="34" disabled> </textarea>
+		</div>
+
+
+		<div class="sendForm">
+
+			Send Message: <button id="q4" class="question">?</button>
+
+		<div class="sending">
+			<div id="receive">
+			Recipient
+			<select id="sendTo">
+				<option value="all">All</option>
+			</select> 
+				<input id="sendButton" type="submit" value="Send"> 
+			</div>
+			<br/>
+
+
+			<textarea id="toSend" class="leftArea" cols="70" rows="10"> </textarea>
+
+		</div>
+		</div>
+	</body>
+</html>

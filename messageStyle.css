@@ -1,0 +1,215 @@
+body {
+	font-size: 22px;
+	margin-left: 50px;
+	margin-right: 50px;
+	background-color: #404040;
+	color: white;
+}
+
+#header {
+	text-align: center;
+	line-height: 80px;
+	margin-left: auto;
+	margin-right: auto;
+	width: 580px;
+	font-size:88px;
+}
+
+
+#main {
+	text-align: center;
+}
+
+td {
+	padding-right: 67px;
+	margin-left: 0px;
+}
+
+.leftArea {
+	width: 575px;
+}
+
+.mainArea {
+	margin-left: auto;
+	margin-right: auto;
+	width: 850px;	
+}
+
+#controlArea {
+	margin-left: auto;
+	margin-right: auto;
+	width: 950px;	
+}
+
+
+#controlField {
+	width: 960px;
+}
+
+.firstForm {
+	line-height: 60px;
+	border-radius: 35px;
+	font-size: 26px;
+	border: 5px solid black;
+	padding-left: 140px;
+	padding-right: 140px;
+	padding-top: 10px;
+	padding-bottom: 20px;
+	white-space: nowrap;
+
+	margin-left: auto;
+	margin-right: auto;
+	width: 480px;
+}
+
+.secondForm {
+	line-height: 60px;
+	border-radius: 35px;
+	font-size: 26px;
+	border: 5px solid black;
+	padding-left: 50px;
+	padding-right: 230px;
+	padding-top: 10px;
+	padding-bottom: 20px;
+	white-space: nowrap;
+
+	margin-left: auto;
+	margin-right: auto;
+	width: 480px;
+}
+
+#error {
+	line-height: 5px;
+	padding-left: 120px;
+}
+
+.lineHead {
+	position: absolute;
+	white-space: nowrap;
+	font-size:26px;
+	font-weight: bold;
+}
+
+
+
+.publicForm {
+	position: absolute;
+	white-space: nowrap;
+	margin-top: 30px;
+}
+
+.privateForm {
+	position: absolute;
+	white-space: nowrap;
+	margin-top: 30px;
+	margin-left: 600px;
+}
+
+.sendForm {
+	position: absolute;
+	white-space: nowrap;
+	margin-top: 380px;
+}
+
+.sending {
+	display: inline;
+}
+
+.labels {
+	position: absolute;
+	white-space: nowrap;
+}
+
+
+
+#receive {
+	display: inline;
+	margin-left: 90px;
+}
+
+
+.controlButtons	{
+	display: inline;
+}
+
+input[value="Create Session"] {
+	border-radius: 25px;
+	padding: 25px 130px;
+	font-weight: bold;
+	font-size: 30px;
+}
+
+input[value="Join"] {
+	border-radius: 25px;
+	padding: 25px 180px;
+	margin-left: 125px;
+	font-weight: bold;
+	font-size: 30px;
+}
+
+input[value="Send"] {
+	border-radius: 5px;
+	padding: 10px 20px;
+	//margin-left: 125px;
+	font-weight: bold;
+	font-size: 14px;
+}
+
+
+.top {
+	border-radius: 25px;
+	padding: 10px 20px;
+	font-weight: bold;
+	font-size: 14px;
+}
+
+.question {
+	border-radius: 50%;
+}
+
+select {
+	padding: 5px 12px;
+	font-size:18px;
+}
+
+input[type=text] {
+	padding: 5px 15px;
+	font-size:26px;
+}
+
+#myName {
+	display: inline;
+}
+
+#session {
+	display: inline;
+}
+
+#headPart1 {
+	display: inline;
+}
+
+#headPart2 {
+	display: inline;
+	margin-left: 40px;
+}
+
+#headPart3 {
+	display: inline;
+	margin-left: 40px;
+}
+
+
+#headPart4 {
+	display: inline;
+}
+
+#headPart5 {
+	display: inline;
+	margin-left: 60px;
+}
+
+#headPart6 {
+	display: inline;
+	margin-left: 150px;
+}

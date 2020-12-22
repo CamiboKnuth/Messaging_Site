@@ -1,0 +1,254 @@
+<!DOCTYPE HTML>
+<html lang="en">
+	<head>
+		<title> Messaging </title>
+		<meta charset="UTF-8">
+		<link rel="stylesheet" type="text/css" href="messageStyle.css">
+		
+		<script>
+			"use strict";
+			var ngrok = 'ws://0760b2642c2a.ngrok.io';	//current ngrok server
+
+			var portNum = '61420';						//port accessible by server
+
+			//generate a random 10 digit session number
+			var generateNumber = function()
+			{
+				var number = "";
+
+				for(var i = 0; i < 10; i++)
+				{
+					var rand = Math.random();
+					rand = rand*10;
+					rand = parseInt(rand);
+
+					number = number + rand.toString(10);
+				}
+
+				return number;
+			}
+
+			//put value selected from "Recent Sessions" dropdown list into field
+			var insertion = function()
+			{
+				var recent = document.getElementById("recentSessions");
+
+				if(recent.options[recent.selectedIndex].text != "Recent Sessions")
+				{
+					document.getElementById("findSession").value = recent.options[recent.selectedIndex].text;
+				}
+				else
+				{
+					document.getElementById("findSession").value = "";
+				}
+			}
+
+			//reset "Recent Sessions" dropdown list
+			var reset = function()
+			{
+				var recent = document.getElementById("recentSessions");
+				recent.selectedIndex = 0;
+			}
+
+			window.onload = function()
+			{
+				document.getElementById("joinButton").onclick = findSession;
+				document.getElementById("createButton").onclick = createSession;
+
+				document.getElementById("recentSessions").onchange = insertion;
+				document.getElementById("findSession").oninput = reset;
+
+
+				//initialize recent sessions list
+				var recentString = '<option value="recent">Recent Sessions</option>';
+
+				var recentSessions = localStorage.getItem('recent');
+
+				if(recentSessions != null)
+				{
+					recentSessions = recentSessions.split(':');
+
+					for(var i = 0; i < recentSessions.length; i++)
+					{
+						recentString += '<option value="' + recentSessions[i] + '">' + recentSessions[i] + '</option>';
+					}
+				}
+	
+				document.getElementById("recentSessions").innerHTML = recentString;
+			};
+
+			//when create session is selected
+			var createSession = function()
+			{
+				var session = generateNumber();
+				var connectFlag = 0;
+
+				//if web socket is supported
+				if ("WebSocket" in window)
+				{
+					//var socket = new WebSocket('ws://' + serverip + ':' + portNum);
+					var socket = new WebSocket(ngrok); //create websocket
+
+					console.log('Connecting...');
+
+					//when socket opesn, send create session message, starts with 'c'
+					socket.onopen = function(event)
+					{
+						console.log('Sending ' + 'c' + session);
+						socket.send('c' + session);
+						connectFlag = 1;
+	
+					};
+
+					//when a message is received
+					socket.onmessage = function(event)
+					{
+						console.log('Received: ' + event.data);
+
+						//confirmation code is '1'
+						if(event.data == 1)
+						{
+							//store values for this session
+							sessionStorage.setItem('sessionNum', session);
+							//sessionStorage.setItem('sessionIp', serverip);
+							sessionStorage.setItem('sessionPort', portNum);
+							sessionStorage.setItem('ngrok', ngrok);
+
+							//add current session to recent sessions list			
+				
+							var recentSessions = localStorage.getItem('recent');
+
+							if(recentSessions != null)
+							{
+								localStorage.setItem('recent', recentSessions.toString() + ':' + session.toString());
+							}
+							else
+							{
+								localStorage.setItem('recent', session.toString());
+							}
+
+							window.location.replace("admin.html");
+						}
+					};
+
+					//when socket closes
+					socket.onclose = function(event)
+					{
+						console.log('Socket has closed');
+						if(connectFlag === 0)
+						{
+							//alert('An error occured while connecting');
+						}
+					};
+				}
+				else
+				{
+					alert("This browser does not support web sockets!");
+				}
+			}
+
+			//when join session is selected
+			var findSession = function()
+			{
+				var session = document.getElementById("findSession").value;
+				var connectFlag = 0;
+
+				//if input is valid
+				if(!isNaN(session) && session.toString().length == 10)
+				{
+					if ("WebSocket" in window)
+					{
+						//var socket = new WebSocket('ws://' + serverip + ':' + portNum);
+						var socket = new WebSocket(ngrok);
+
+						console.log('Connected!');
+
+						//upon socket open, send find session message, starts with 'f'
+						socket.onopen = function(event)
+						{
+							console.log('Sending ' + 'f' + session);
+							socket.send('f' + session.toString());
+							connectFlag == 1;
+	
+						};
+
+						//upon receiving message
+						socket.onmessage = function(event)
+						{
+							console.log('Received: ' + event.data);
+
+							//confirmation code is 1
+							if(event.data == 1)
+							{
+								sessionStorage.setItem('sessionNum', session);
+								//sessionStorage.setItem('sessionIp', serverip);
+								sessionStorage.setItem('sessionPort', portNum);
+								sessionStorage.setItem('ngrok', ngrok);
+
+								window.location.replace("main.html");
+							}
+							//failure code is 0
+							else if(event.data == 0)
+							{
+								alert("Session not found");
+							}
+						};
+	
+						socket.onclose = function(event)
+						{
+							console.log('Socket has closed');
+							if(connectFlag === 0)
+							{
+								//alert('An error occured while connecting');
+							}
+						};
+					}
+					else
+					{
+						alert("This browser does not support web sockets!");
+					}
+				}
+				else
+				{
+					var element = document.getElementById("error");
+					element.style.color = 'red';
+					element.innerHTML = "invalid session number";
+				}
+
+			};
+		</script>
+		
+	</head>
+
+	<body>
+
+		
+		<h1 id="header"> Anonymous <br/> Messaging Site </h1> 
+		
+		<div id="main">
+
+		<div class="firstForm">
+			Create a new, anonymous messaging session <br/>
+			<input id="createButton" type="submit" value="Create Session">
+		</div>
+
+		<br/>
+
+		<div class="secondForm">
+			Join someone else's session by entering its unique session code
+			<h2 id="error"></h2>
+			Join Session # <input id="findSession" type="text"> 
+
+			<select id="recentSessions">
+
+			</select> 
+
+			<br/>
+
+			<input id="joinButton" type="submit" value="Join">
+
+		</div>
+		
+		</div>
+	</body>
+</html>
